@@ -12,7 +12,7 @@ namespace Server
     {
         public static string DecryptStringFromBytes_Aes(byte[] cipherText, byte[] Key, byte[] IV)
         {
-            // Check arguments.
+            // Проверка аргументов
             if (cipherText == null || cipherText.Length <= 0)
                 throw new ArgumentNullException("cipherText");
             if (Key == null || Key.Length <= 0)
@@ -20,21 +20,18 @@ namespace Server
             if (IV == null || IV.Length <= 0)
                 throw new ArgumentNullException("IV");
 
-            // Declare the string used to hold
-            // the decrypted text.
             string plaintext = null;
 
-            // Create an Aes object
-            // with the specified key and IV.
+            // Создание объекта Aes
             using (Aes aesAlg = Aes.Create())
             {
                 aesAlg.Key = Key;
                 aesAlg.IV = IV;
 
-                // Create a decryptor to perform the stream transform.
+                // Создание декриптора.
                 ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
 
-                // Create the streams used for decryption.
+                // Создание потока
                 using (MemoryStream msDecrypt = new MemoryStream(cipherText))
                 {
                     using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
@@ -42,8 +39,7 @@ namespace Server
                         using (StreamReader srDecrypt = new StreamReader(csDecrypt))
                         {
 
-                            // Read the decrypted bytes from the decrypting stream
-                            // and place them in a string.
+                            // Чтение данных из потока
                             plaintext = srDecrypt.ReadToEnd();
                         }
                     }

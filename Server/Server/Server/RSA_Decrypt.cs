@@ -14,22 +14,17 @@ namespace Server
             try
             {
                 byte[] decryptedData;
-                //Create a new instance of RSACryptoServiceProvider.
+                //Создание объекта RSACryptoServiceProvider.
                 using (RSACryptoServiceProvider RSA = new RSACryptoServiceProvider())
                 {
-                    //Import the RSA Key information. This needs
-                    //to include the private key information.
+                    //Импорт ключа
                     RSA.ImportCspBlob(privateKey);
 
-                    //Decrypt the passed byte array and specify OAEP padding.  
-                    //OAEP padding is only available on Microsoft Windows XP or
-                    //later.  
+                    //Расшифровка данных 
                     decryptedData = RSA.Decrypt(DataToDecrypt, DoOAEPPadding);
                 }
                 return decryptedData;
             }
-            //Catch and display a CryptographicException  
-            //to the console.
             catch (CryptographicException e)
             {
                 Console.WriteLine(e.ToString());

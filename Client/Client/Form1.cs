@@ -27,20 +27,20 @@ namespace Client
 
             string fileText = System.IO.File.ReadAllText(fileName);
             textBox1.Text = fileText;
+            button2.Visible = true;
 
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            this.Close();
+            Close();
         }
 
         private void button2_Click(object sender, EventArgs e)
         {
-            string text = textBox1.Text;
-            Calculator calculator = new Calculator(this);
+            Client client = new Client(this,fileName);
 
-            calculator.ConnectServer(textBox3.Text);
+            client.ConnectServer(textBox3.Text);
             MessageBox.Show("Файл зашифрован");
         }
 

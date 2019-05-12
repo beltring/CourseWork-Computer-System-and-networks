@@ -8,14 +8,19 @@ using System.Threading.Tasks;
 
 namespace Server
 {
-    class Program
+    class Server
     {
+        private const int port = 11000;
+        private const int keySize = 128;
+        private const int IV_Size = 16;
+        private const int textSize = 1024;
+
         static void Main(string[] args)
         {
             TcpListener server = null;
             try
             {
-                server = new TcpListener(11000);
+                server = new TcpListener(port);
                 server.Start();
 
                 while (true)
@@ -29,28 +34,24 @@ namespace Server
 
                     byte[] privateKey = RSA.ExportCspBlob(true);
                     byte[] publicKey = RSA.ExportCspBlob(false);
-                    //Console.WriteLine(Encoding.UTF8.GetString(publicKey));
-                    
 
-
-                    byte[] data = new byte[256];
                     StringBuilder response = new StringBuilder();
 
                     NetworkStream stream = client.GetStream();
-                    byte[] encryptKey = new byte[128]; // буфер для ответа
-                    byte[] IV = new byte[16];
-                    byte[] encryptText = new byte[256];
+                    byte[] encryptKey = new byte[keySize]; // буфер для ответа
+                    byte[] IV = new byte[IV_Size];
+                    byte[] encryptText = new byte[textSize];
 
                     // отправка публичного ключа rsa
                     stream.Write(publicKey, 0, publicKey.Length);
 
+                    // получение данных
                     stream.Read(encryptKey, 0, encryptKey.Length);
-                    //Console.WriteLine(Encoding.ASCII.GetString(encryptKey));
                     stream.Read(IV, 0, IV.Length);
                     int bytes = stream.Read(encryptText, 0, encryptText.Length);
-                    //Console.WriteLine(Encoding.ASCII.GetString(IV));
-
+                    
                     byte[] aesKey = RSA_Decrypt.RSADecrypt(encryptKey, privateKey, false);
+
                     byte[] text = new byte[bytes];
                     for(int i = 0; i < bytes; i++)
                     {
@@ -61,15 +62,7 @@ namespace Server
 
                     byte[] dataSend = Encoding.UTF8.GetBytes(decryptText);
                     stream.Write(dataSend, 0, dataSend.Length);
-                    //Console.WriteLine("Сообщение полученное от клиента: {0}", response);
-
-                    /*string responseClient = "Привет клиент!!!";
-                    byte[] dataClient = Encoding.UTF8.GetBytes(responseClient);
-
-                    stream.Write(dataClient, 0, dataClient.Length);
-                    Console.WriteLine("Отправлено сообщение: {0}", responseClient);*/
-
-
+                    
                     stream.Close();
                     client.Close();
                 }

@@ -9,18 +9,23 @@ using System.Windows.Forms;
 
 namespace Client
 {
-    class Calculator
+    class Client
     {
+        private const int publicKeyConst = 148;
+        private const int port = 11000;
+
         private Aes myAes;
         private byte[] key;
         private byte[] IV;
         private Form1 form1;
-        public Calculator(Form1 form)
+        private string fileName;
+        public Client(Form1 form1, string fileName)
         {
             myAes = Aes.Create();
             key = myAes.Key;
             IV = myAes.IV;
-            form1 = form;
+            this.form1 = form1;
+            this.fileName = fileName;
         }
 
         public Aes MyAes { get => myAes;}
@@ -37,10 +42,10 @@ namespace Client
         {
             try
             {
-                TcpClient client = new TcpClient(dnsName, 11000);
+                TcpClient client = new TcpClient(dnsName, port);
 
                 NetworkStream stream = client.GetStream();
-                byte[] publicKey = new byte[148];
+                byte[] publicKey = new byte[publicKeyConst];
 
                 do
                 {
@@ -53,15 +58,11 @@ namespace Client
                 
                 byte[] encryptText = AES_Encrypt.EncryptStringToBytes_Aes(form1.textBox1.Text, key, IV);
                 form1.textBox1.Text = Encoding.ASCII.GetString(encryptText);
-                System.IO.File.WriteAllText(@"d:\Study\COURSE_TWO\КСиС\курсач\dataClient.txt", form1.textBox1.Text);
+                System.IO.File.WriteAllText(fileName, form1.textBox1.Text);
 
                 stream.Write(encryptKey, 0, encryptKey.Length);
                 stream.Write(IV, 0, IV.Length);
                 stream.Write(encryptText, 0, encryptText.Length);
-                /*string dataSend = "Привет сервер!!!";
-                byte[] data = Encoding.UTF8.GetBytes(dataSend);
-                stream.Write(data, 0, data.Length);*/
-
 
                 byte[] data = new byte[256];
                 StringBuilder response = new StringBuilder();
